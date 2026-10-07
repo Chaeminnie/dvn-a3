@@ -25,7 +25,7 @@ THRESHOLD = 0.05  # max allowed relative difference
 BASE_LANG = "eng_Latn"
 
 TIKTOKEN_IDS = {"gpt2": "gpt2", "cl100k_base": "cl100k_base", "o200k_base": "o200k_base"}
-HF_IDS = {"qwen2.5": "Qwen/Qwen2.5-0.5B", "gemma2": "google/gemma-2-2b"}
+HF_IDS = {"qwen2.5": "Qwen/Qwen2.5-0.5B", "gemma2": "google/gemma-2-2b", "llama3": "meta-llama/Llama-3.2-1B"}
 
 sample = pd.read_csv(SAMPLE_PREM)
 lang_codes = sorted(sample["lang_code"].unique())

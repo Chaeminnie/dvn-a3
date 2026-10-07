@@ -2,5 +2,6 @@ tokenizer_id,n_languages,gini,gini_byte_baseline,max_premium,max_premium_lang,me
 cl100k_base,15,0.3925,0.2496,11.7884,mya_Mymr,2.3843
 gemma2,15,0.2486,0.2496,4.8743,mya_Mymr,1.5384
 gpt2,15,0.4186,0.2496,17.0875,mya_Mymr,4.4888
+llama3,15,0.4279,0.2496,11.7971,mya_Mymr,1.6444
 o200k_base,15,0.2471,0.2496,5.8394,amh_Ethi,1.4843
 qwen2.5,15,0.3747,0.2496,9.0842,mya_Mymr,1.6714

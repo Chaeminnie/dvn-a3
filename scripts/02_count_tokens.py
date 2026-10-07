@@ -34,7 +34,7 @@ TIKTOKEN_IDS = {
 HF_IDS = {
     "qwen2.5": "Qwen/Qwen2.5-0.5B",
     "gemma2": "google/gemma-2-2b",
-    # "llama3": "<repo id from the approved Llama model page>",
+    "llama3": "meta-llama/Llama-3.2-1B",
 }
 
 df = pd.read_csv(SRC)

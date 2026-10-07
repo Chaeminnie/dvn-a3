@@ -1,0 +1,7 @@
+tokenizer_id,library,source_name,vocab_size,organisation,generation_order,release_date,source_url
+gpt2,tiktoken,gpt2,50257,OpenAI,1,TODO,TODO
+cl100k_base,tiktoken,cl100k_base,100277,OpenAI,2,TODO,TODO
+o200k_base,tiktoken,o200k_base,200019,OpenAI,3,TODO,TODO
+qwen2.5,transformers,Qwen/Qwen2.5-0.5B,151665,Alibaba (Qwen),1,TODO,https://huggingface.co/Qwen/Qwen2.5-0.5B
+gemma2,transformers,google/gemma-2-2b,256000,Google,1,TODO,https://huggingface.co/google/gemma-2-2b
+llama3,transformers,meta-llama/Llama-3.2-1B,128256,Meta,1,TODO,https://huggingface.co/meta-llama/Llama-3.2-1B
