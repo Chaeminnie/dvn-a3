@@ -1,0 +1,16 @@
+lang_code,iso_639_3,iso_15924,language,uses_spaces
+eng_Latn,eng,Latn,English,yes
+fra_Latn,fra,Latn,French,yes
+deu_Latn,deu,Latn,German,yes
+spa_Latn,spa,Latn,Spanish,yes
+rus_Cyrl,rus,Cyrl,Russian,yes
+arb_Arab,arb,Arab,Arabic (Modern Standard),yes
+hin_Deva,hin,Deva,Hindi,yes
+tam_Taml,tam,Taml,Tamil,yes
+swh_Latn,swh,Latn,Swahili,yes
+kor_Hang,kor,Hang,Korean,yes
+cmn_Hans,cmn,Hans,Chinese (Simplified),no
+jpn_Jpan,jpn,Jpan,Japanese,no
+tha_Thai,tha,Thai,Thai,no
+mya_Mymr,mya,Mymr,Burmese,partial
+amh_Ethi,amh,Ethi,Amharic,yes
