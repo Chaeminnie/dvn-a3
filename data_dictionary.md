@@ -8,6 +8,7 @@ Conventions
 - Token counts exclude special tokens (BOS/EOS) and use Unicode NFC-normalised text.
 - Regenerate all processed files with `bash run_all.sh` (see run_all.sh for options).
 - Tokenizers are defined once in `scripts/tokenizer_config.py`.
+- Hand-maintained fields live in `data/source/tokenizers_manual.csv` so that re-running the pipeline never overwrites them.
 
 ## Source files (data/source/)
 
@@ -29,24 +30,31 @@ Conventions
 
 ### tokenizers.csv
 - Source: libraries, Hugging Face tokenizer repositories (only tokenizer files, not model weights) and the providers' token-counting endpoints.
-- Columns: `tokenizer_id` (text), `library` (tiktoken / transformers / api), `source_name` (text; tiktoken encoding, Hugging Face repo id or API model name), `vocab_size` (integer; `n_vocab` for tiktoken, `len(tokenizer)` for Hugging Face, which includes added/special tokens; "n/a" for API models), `organisation` (text), `family` (text), `generation_order` (integer; 1 = oldest; comparable only within one family), `load_args` (text; extra arguments used when loading), `release_date` (TODO), `source_url` (TODO for tiktoken).
+- Columns: `tokenizer_id` (text), `library` (tiktoken / transformers / api), `source_name` (text; tiktoken encoding, Hugging Face repo id or API model name), `vocab_size` (integer; `n_vocab` for tiktoken, `len(tokenizer)` for Hugging Face, which includes added/special tokens; "n/a" for API models), `organisation` (text), `family` (text), `generation_order` (integer; 1 = oldest; comparable only within one family), `load_args` (text; extra arguments used when loading), `release_date` (date; from `tokenizers_manual.csv`), `source_url` (text; from `tokenizers_manual.csv` where given, otherwise the Hugging Face repository URL), `date_basis` (text; `official` = checked against the provider's official page, `from_memory_verify` = entered by the team and not yet verified).
 - PK: `tokenizer_id`. Rows: 12. Retrieved: 2026-10-11.
+- Release dates: Claude Haiku 4.5 (2025-10-15), Claude Sonnet 5.5 (2026-09-28) and Gemini 3.8 Flash (2026-09-02) are checked against the providers' release notes. The other nine dates are marked `from_memory_verify` until checked against the Hugging Face repository history or the provider's announcement. For tiktoken encodings the date is the first model that used the encoding, not a file date.
 - Licences: Qwen3-0.6B Apache-2.0 and Mistral-Nemo-Instruct-2407 Apache-2.0 (checked on the model pages 2026-10-07); gemma-3-1b-it Gemma Terms of Use (gated, terms accepted). TODO to verify: Qwen2.5-0.5B, gemma-2-2b, Llama-3.2-1B (Llama 3.2 Community Licence, gated, terms accepted), tiktoken encodings.
-- Notes: `mistral_nemo` is loaded with `fix_mistral_regex=True` because the library warns that the default regex tokenises incorrectly; it was not cross-checked against an independent implementation. Mistral Nemo dates from 2024, so it is a 2024 Tekken baseline. Qwen2.5 and Qwen3 produced identical counts in every cell; whether they share the vocabulary is TODO. The generation_order of the two Claude models is an assumption based on the provider's pricing page (Claude 4.7 and later use a newer tokenizer).
-- Transform: `scripts/tokenizer_config.py` (definitions) and `scripts/05_build_tokenizer_registry.py`.
-- Qwen2.5 and Qwen3 gave identical token counts for all 3,000 sample sentences, and Gemma 3 and Gemini 3.8 Flash did too (checked 2026-10-11). Treat each pair as one tokenizer in comparisons. The Gemma 3 / Gemini match also supports the Gemini overhead calibration (1 token); it was not verified against an official statement.
+- Notes: `mistral_nemo` is loaded with `fix_mistral_regex=True` because the library warns that the default regex tokenises incorrectly; it was not cross-checked against an independent implementation. Mistral Nemo dates from 2024, so it is a 2024 Tekken baseline. The generation_order of the two Claude models is an assumption based on the provider's pricing page (Claude 4.7 and later use a newer tokenizer).
+- Identical tokenisation (checked 2026-10-11 on the sample): Qwen2.5 and Qwen3 give identical token counts on all 3,000 sentences, and Gemma 3 and Gemini 3.8 Flash give identical counts on all 3,000 sentences. The two Qwen vocabularies differ in size (151,665 vs 151,669), so the equality may come from shared merges plus different special tokens; this was not verified. Treat each pair as one tokenizer in charts, or label them as identical, and do not present them as independent generations.
+- Transform: `scripts/tokenizer_config.py` (definitions), `scripts/05_build_tokenizer_registry.py` (builds the table), `scripts/05b_apply_manual_fields.py` (applies `tokenizers_manual.csv`).
+
+### tokenizers_manual.csv
+- Source: written by the project team from official pages (see `date_basis`).
+- Columns: `tokenizer_id` (text), `release_date` (date), `source_url` (text; empty = keep the existing URL), `date_basis` (official / from_memory_verify).
+- PK: `tokenizer_id`. Rows: 12.
+- Purpose: hand-curated values that script 05 would otherwise overwrite. Edit this file, then run `python scripts/05b_apply_manual_fields.py`.
 
 ### prices.csv
 - Source: official provider pricing pages (Anthropic https://platform.claude.com/docs/en/about-claude/pricing; Google https://ai.google.dev/gemini-api/docs/pricing), plus one illustrative row.
 - Columns: `price_id`, `provider`, `model_api_name`, `tokenizer_id`, `input_usd_per_1m` and `output_usd_per_1m` (USD per 1M tokens), `price_note`, `valid_from` and `valid_until` (dates), `source_tier` (official / assumption), `source_url`, `collected_on` (date).
 - PK: `price_id`. Rows: 5. Collected 2026-10-11 (prices unchanged since 2026-10-07); re-check before submission. The Gemini 3.8 Flash price changes on 2027-01-01 and has one row per period.
-- Scope: list prices for input and output tokens. Cached, batch, priority and regional prices are not modelled. The `illustrative` row is an assumption, not a quote. Claude Haiku 4.5 is no longer the current Haiku (Haiku 5.5 is listed first on the pricing page) and Haiku 5.5 was not counted.
+- Scope: list prices for input and output tokens. Cached, batch, priority and regional prices are not modelled. The `illustrative` row (tokenizer_id `all`) is an assumption, not a quote. Claude Haiku 4.5 is no longer the current Haiku (Haiku 5.5 is listed first on the pricing page) and Haiku 5.5 was not counted.
 
 ### language_mix.csv
-- Source: none. Placeholder with equal weights (1/15 per language).
-- Columns: `lang_code` (text), `user_share` (decimal, share of users; sums to about 1), `source_tier` (assumption), `note` (text).
+- Source: none. Placeholder with equal weights (1/15 per language, rounded to 0.0667).
+- Columns: `lang_code` (text), `user_share` (decimal, share of users), `source_tier` (assumption), `note` (text).
 - PK: `lang_code`. Rows: 15.
-- Note: this is NOT real usage data. It will be replaced by a sourced dataset or user input in the app.
+- Note: this is NOT real usage data. It will be replaced by a sourced dataset or user input in the app. Because of rounding the shares sum to 1.0005; normalise before use (check tolerance 0.001).
 - Transform: generated from `lang_meta.csv` (one-line script).
 
 ### api_token_counts_raw.csv
@@ -90,5 +98,7 @@ Conventions
 - FLORES+ is translated text, not natural usage.
 - Token counts only; no model quality, output tokens or price negotiation.
 - API models (Claude, Gemini) are black boxes: counts depend on the provider's current tokenizer and may change.
-- On the sample, Claude Sonnet 5.5 produced 33-46% more tokens than Haiku 4.5 for Latin-script languages and about the same for the others. The mechanism is unknown. Because English becomes more expensive, the premium vs English looks lower for non-Latin languages even though their absolute token counts did not change. Show absolute tokens per sentence next to premiums.
-- Qwen2.5 and Qwen3 gave identical counts; do not present them as two independent generations until the vocabulary comparison is done.
+- On the sample, Claude Sonnet 5.5 produced 33-46% more tokens than Haiku 4.5 for Latin-script languages (French +33%, English +46%) and about the same (-1% to +0.4%) for the others. The mechanism is unknown. Because English becomes more expensive, the premium vs English looks lower for non-Latin languages even though their absolute token counts did not change. Show absolute tokens per sentence next to premiums.
+- Qwen2.5 = Qwen3 and Gemma 3 = Gemini 3.8 Flash give identical counts (see tokenizers.csv notes); they are not independent data points.
+- Claude Haiku 5.5 is the current Haiku but was not counted.
+- Nine of twelve release dates are not yet verified (`date_basis` = `from_memory_verify`).
