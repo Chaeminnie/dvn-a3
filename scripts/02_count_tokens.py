@@ -9,33 +9,20 @@ Rules (document these in the data dictionary):
   - Special tokens (BOS/EOS) are NOT counted.
   - A round-trip check (decode(encode(text)) == text) is run for every sentence.
   - Tokenizers that cannot be loaded (e.g. gated, not yet approved) are skipped.
+Tokenizers are defined in scripts/tokenizer_config.py.
 """
 from pathlib import Path
 import unicodedata
 
 import pandas as pd
 import tiktoken
-from transformers import AutoTokenizer
+
+from tokenizer_config import TIKTOKEN, HF, HF_KWARGS, load_hf_tokenizer
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "data" / "source" / "flores_sample.csv"
 OUT = ROOT / "data" / "processed" / "token_counts_long.csv"
 OUT.parent.mkdir(parents=True, exist_ok=True)
-
-# tokenizer_id -> tiktoken encoding name
-TIKTOKEN_IDS = {
-    "gpt2": "gpt2",
-    "cl100k_base": "cl100k_base",
-    "o200k_base": "o200k_base",
-}
-
-# tokenizer_id -> Hugging Face repo id (only the tokenizer files are downloaded).
-# Add the Llama entry below once access is approved, then re-run this script.
-HF_IDS = {
-    "qwen2.5": "Qwen/Qwen2.5-0.5B",
-    "gemma2": "google/gemma-2-2b",
-    "llama3": "meta-llama/Llama-3.2-1B",
-}
 
 df = pd.read_csv(SRC)
 df["text"] = df["text"].map(lambda s: unicodedata.normalize("NFC", s))
@@ -59,14 +46,14 @@ def add_rows(tok_id, encode, decode):
         })
 
 
-for tok_id, enc_name in TIKTOKEN_IDS.items():
+for tok_id, (enc_name, _, _) in TIKTOKEN.items():
     enc = tiktoken.get_encoding(enc_name)
     add_rows(tok_id, enc.encode_ordinary, enc.decode)  # no special tokens
     print(f"[ok] {tok_id}")
 
-for tok_id, repo in HF_IDS.items():
+for tok_id, (repo, _, _) in HF.items():
     try:
-        tok = AutoTokenizer.from_pretrained(repo)
+        tok = load_hf_tokenizer(tok_id)
     except Exception as e:  # gated, missing, or network error
         print(f"[skipped] {tok_id} ({repo}): {type(e).__name__}: {str(e)[:150]}")
         continue
@@ -75,7 +62,8 @@ for tok_id, repo in HF_IDS.items():
         lambda t, tok=tok: tok.encode(t, add_special_tokens=False),
         lambda ids, tok=tok: tok.decode(ids, clean_up_tokenization_spaces=False),
     )
-    print(f"[ok] {tok_id} ({repo})")
+    extra = HF_KWARGS.get(tok_id)
+    print(f"[ok] {tok_id} ({repo}){' extra args: ' + str(extra) if extra else ''}")
 
 out = pd.DataFrame(rows)
 out.to_csv(OUT, index=False)

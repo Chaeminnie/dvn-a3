@@ -9,13 +9,15 @@ difference between sample premium and full premium is at most 5%.
 Input:  data/source/flores_full/<lang_code>.csv   (id, text)
         data/processed/token_premium.csv          (sample result)
 Output: data/processed/sample_vs_full_check.csv
+Tokenizers are defined in scripts/tokenizer_config.py.
 """
 from pathlib import Path
 import unicodedata
 
 import pandas as pd
 import tiktoken
-from transformers import AutoTokenizer
+
+from tokenizer_config import TIKTOKEN, HF, load_hf_tokenizer
 
 ROOT = Path(__file__).resolve().parent.parent
 FULL_DIR = ROOT / "data" / "source" / "flores_full"
@@ -24,11 +26,9 @@ OUT = ROOT / "data" / "processed" / "sample_vs_full_check.csv"
 THRESHOLD = 0.05  # max allowed relative difference
 BASE_LANG = "eng_Latn"
 
-TIKTOKEN_IDS = {"gpt2": "gpt2", "cl100k_base": "cl100k_base", "o200k_base": "o200k_base"}
-HF_IDS = {"qwen2.5": "Qwen/Qwen2.5-0.5B", "gemma2": "google/gemma-2-2b", "llama3": "meta-llama/Llama-3.2-1B"}
-
 sample = pd.read_csv(SAMPLE_PREM)
 lang_codes = sorted(sample["lang_code"].unique())
+in_sample = set(sample["tokenizer_id"].unique())
 
 texts = {}
 for code in lang_codes:
@@ -38,11 +38,14 @@ n_full = {len(v) for v in texts.values()}
 assert n_full == {1012}, f"Unexpected sentence counts: {n_full}"
 
 encoders = {}
-for tok_id, name in TIKTOKEN_IDS.items():
-    enc = tiktoken.get_encoding(name)
-    encoders[tok_id] = enc.encode_ordinary
-for tok_id, repo in HF_IDS.items():
-    tok = AutoTokenizer.from_pretrained(repo)
+for tok_id, (enc_name, _, _) in TIKTOKEN.items():
+    if tok_id in in_sample:
+        encoders[tok_id] = tiktoken.get_encoding(enc_name).encode_ordinary
+for tok_id in HF:
+    if tok_id not in in_sample:
+        print(f"[not in sample result, skipped] {tok_id}")
+        continue
+    tok = load_hf_tokenizer(tok_id)
     encoders[tok_id] = lambda t, tok=tok: tok.encode(t, add_special_tokens=False)
 
 totals = {}

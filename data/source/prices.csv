@@ -1,0 +1,5 @@
+price_id,provider,model_api_name,tokenizer_id,input_usd_per_1m,output_usd_per_1m,price_note,valid_from,valid_until,source_tier,source_url,collected_on
+illustrative,,Equal price per token,all,1.00,,"User-editable default. Not a quote.",,,assumption,,2026-10-07
+anthropic_sonnet_5_5,Anthropic,claude-sonnet-5-5,TBD,2.00,10.00,"Base tokens, standard processing",,,official,https://platform.claude.com/docs/en/about-claude/pricing,2026-10-07
+google_gemini_3_8_flash_2026,Google,gemini-3.8-flash,TBD,0.75,3.75,"Standard tier, through 2026-12-31",,2026-12-31,official,https://ai.google.dev/gemini-api/docs/pricing,2026-10-07
+google_gemini_3_8_flash_2027,Google,gemini-3.8-flash,TBD,1.50,7.50,"Standard tier, from 2027-01-01",2027-01-01,,official,https://ai.google.dev/gemini-api/docs/pricing,2026-10-07

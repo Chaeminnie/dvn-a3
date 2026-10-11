@@ -1,2 +1,5 @@
 .venv/
 data/source/flores_full/
+.env
+.env
+.DS_Store
