@@ -21,3 +21,4 @@ python scripts/02_count_tokens.py
 python scripts/03_aggregate.py
 if [[ "$FULL" == "1" ]]; then python scripts/04_validate_sample.py; fi
 python scripts/05_build_tokenizer_registry.py
+python scripts/05b_apply_manual_fields.py
