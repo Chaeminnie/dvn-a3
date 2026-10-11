@@ -1,10 +1,13 @@
-tokenizer_id,library,source_name,vocab_size,organisation,generation_order,load_args,release_date,source_url
-gpt2,tiktoken,gpt2,50257,OpenAI,1,,TODO,TODO
-cl100k_base,tiktoken,cl100k_base,100277,OpenAI,2,,TODO,TODO
-o200k_base,tiktoken,o200k_base,200019,OpenAI,3,,TODO,TODO
-qwen2.5,transformers,Qwen/Qwen2.5-0.5B,151665,Alibaba (Qwen),1,,TODO,https://huggingface.co/Qwen/Qwen2.5-0.5B
-qwen3,transformers,Qwen/Qwen3-0.6B,151669,Alibaba (Qwen),2,,TODO,https://huggingface.co/Qwen/Qwen3-0.6B
-gemma2,transformers,google/gemma-2-2b,256000,Google,1,,TODO,https://huggingface.co/google/gemma-2-2b
-gemma3,transformers,google/gemma-3-1b-it,262145,Google,2,,TODO,https://huggingface.co/google/gemma-3-1b-it
-llama3,transformers,meta-llama/Llama-3.2-1B,128256,Meta,1,,TODO,https://huggingface.co/meta-llama/Llama-3.2-1B
-mistral_nemo,transformers,mistralai/Mistral-Nemo-Instruct-2407,131072,Mistral AI,1,{'fix_mistral_regex': True},TODO,https://huggingface.co/mistralai/Mistral-Nemo-Instruct-2407
+tokenizer_id,library,source_name,vocab_size,organisation,family,generation_order,load_args,release_date,source_url
+gpt2,tiktoken,gpt2,50257,OpenAI,gpt,1,,TODO,TODO
+cl100k_base,tiktoken,cl100k_base,100277,OpenAI,gpt,2,,TODO,TODO
+o200k_base,tiktoken,o200k_base,200019,OpenAI,gpt,3,,TODO,TODO
+qwen2.5,transformers,Qwen/Qwen2.5-0.5B,151665,Alibaba (Qwen),qwen,1,,TODO,https://huggingface.co/Qwen/Qwen2.5-0.5B
+qwen3,transformers,Qwen/Qwen3-0.6B,151669,Alibaba (Qwen),qwen,2,,TODO,https://huggingface.co/Qwen/Qwen3-0.6B
+gemma2,transformers,google/gemma-2-2b,256000,Google,gemma,1,,TODO,https://huggingface.co/google/gemma-2-2b
+gemma3,transformers,google/gemma-3-1b-it,262145,Google,gemma,2,,TODO,https://huggingface.co/google/gemma-3-1b-it
+llama3,transformers,meta-llama/Llama-3.2-1B,128256,Meta,llama,1,,TODO,https://huggingface.co/meta-llama/Llama-3.2-1B
+mistral_nemo,transformers,mistralai/Mistral-Nemo-Instruct-2407,131072,Mistral AI,mistral,1,{'fix_mistral_regex': True},TODO,https://huggingface.co/mistralai/Mistral-Nemo-Instruct-2407
+claude_haiku_4_5,api,claude-haiku-4-5-20251001,n/a,Anthropic,claude,1,free token-counting endpoint; constant message overhead subtracted,TODO,https://platform.claude.com/docs/en/build-with-claude/token-counting
+claude_sonnet_5_5,api,claude-sonnet-5-5,n/a,Anthropic,claude,2,free token-counting endpoint; constant message overhead subtracted,TODO,https://platform.claude.com/docs/en/build-with-claude/token-counting
+gemini_3_8_flash,api,gemini-3.8-flash,n/a,Google,gemini,1,free token-counting endpoint; constant message overhead subtracted,TODO,https://ai.google.dev/gemini-api/docs/tokens

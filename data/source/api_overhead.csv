@@ -1,0 +1,4 @@
+tokenizer_id,provider,model_api_name,overhead_tokens,probes,calibrated_at
+claude_haiku_4_5,anthropic,claude-haiku-4-5-20251001,7,a|the|and,2026-10-11T04:11:43Z
+claude_sonnet_5_5,anthropic,claude-sonnet-5-5,8,a|the|and,2026-10-11T04:11:43Z
+gemini_3_8_flash,google,gemini-3.8-flash,1,a|the|and,2026-10-11T04:11:43Z

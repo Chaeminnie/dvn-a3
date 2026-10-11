@@ -1,13 +1,17 @@
 """Step 2/3: Count tokens per sentence for each language x tokenizer.
 
 Input:  data/source/flores_sample.csv (lang_code, sent_id, text)
+        data/source/api_token_counts_raw.csv (optional; from scripts/06_fetch_api_counts.py)
 Output: data/processed/token_counts_long.csv
         columns: lang_code, sent_id, tokenizer_id, n_tokens, n_chars, n_bytes
 
 Rules (document these in the data dictionary):
   - Text is normalised with Unicode NFC before counting.
   - Special tokens (BOS/EOS) are NOT counted.
-  - A round-trip check (decode(encode(text)) == text) is run for every sentence.
+  - Local tokenizers: a round-trip check (decode(encode(text)) == text) is run for every sentence.
+  - API models: n_tokens = raw API count - constant message overhead (stored per raw row).
+    No round-trip check is possible (counts only). A model is used only if ALL sample
+    sentences have been counted.
   - Tokenizers that cannot be loaded (e.g. gated, not yet approved) are skipped.
 Tokenizers are defined in scripts/tokenizer_config.py.
 """
@@ -17,10 +21,11 @@ import unicodedata
 import pandas as pd
 import tiktoken
 
-from tokenizer_config import TIKTOKEN, HF, HF_KWARGS, load_hf_tokenizer
+from tokenizer_config import TIKTOKEN, HF, HF_KWARGS, API, load_hf_tokenizer
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "data" / "source" / "flores_sample.csv"
+RAW_API = ROOT / "data" / "source" / "api_token_counts_raw.csv"
 OUT = ROOT / "data" / "processed" / "token_counts_long.csv"
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
@@ -65,11 +70,35 @@ for tok_id, (repo, _, _) in HF.items():
     extra = HF_KWARGS.get(tok_id)
     print(f"[ok] {tok_id} ({repo}){' extra args: ' + str(extra) if extra else ''}")
 
+# API models (counts only)
+if RAW_API.exists():
+    raw = pd.read_csv(RAW_API).drop_duplicates(["tokenizer_id", "lang_code", "sent_id"], keep="last")
+    text_by_key = {(r.lang_code, int(r.sent_id)): r.text for r in df.itertuples(index=False)}
+    for tok_id in API:
+        sub = raw[raw["tokenizer_id"] == tok_id]
+        if len(sub) != len(df):
+            print(f"[skipped] {tok_id}: {len(sub)} of {len(df)} sentences counted "
+                  f"(run scripts/06_fetch_api_counts.py)")
+            continue
+        for r in sub.itertuples(index=False):
+            text = text_by_key[(r.lang_code, int(r.sent_id))]
+            n_tok = int(r.raw_count - r.overhead_tokens)
+            assert n_tok >= 1, f"{tok_id}: non-positive count for {r.lang_code} {r.sent_id}"
+            rows.append({
+                "lang_code": r.lang_code,
+                "sent_id": int(r.sent_id),
+                "tokenizer_id": tok_id,
+                "n_tokens": n_tok,
+                "n_chars": len(text),
+                "n_bytes": len(text.encode("utf-8")),
+            })
+        print(f"[ok] {tok_id} (API counts, overhead subtracted)")
+
 out = pd.DataFrame(rows)
 out.to_csv(OUT, index=False)
 
 print(f"Wrote {len(out)} rows to {OUT}")
-print(f"Round-trip failures: {len(roundtrip_failures)}")
+print(f"Round-trip failures (local tokenizers): {len(roundtrip_failures)}")
 if roundtrip_failures:
     print("First failures:", roundtrip_failures[:5])
 
