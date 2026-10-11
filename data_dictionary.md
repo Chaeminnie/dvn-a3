@@ -34,6 +34,7 @@ Conventions
 - Licences: Qwen3-0.6B Apache-2.0 and Mistral-Nemo-Instruct-2407 Apache-2.0 (checked on the model pages 2026-10-07); gemma-3-1b-it Gemma Terms of Use (gated, terms accepted). TODO to verify: Qwen2.5-0.5B, gemma-2-2b, Llama-3.2-1B (Llama 3.2 Community Licence, gated, terms accepted), tiktoken encodings.
 - Notes: `mistral_nemo` is loaded with `fix_mistral_regex=True` because the library warns that the default regex tokenises incorrectly; it was not cross-checked against an independent implementation. Mistral Nemo dates from 2024, so it is a 2024 Tekken baseline. Qwen2.5 and Qwen3 produced identical counts in every cell; whether they share the vocabulary is TODO. The generation_order of the two Claude models is an assumption based on the provider's pricing page (Claude 4.7 and later use a newer tokenizer).
 - Transform: `scripts/tokenizer_config.py` (definitions) and `scripts/05_build_tokenizer_registry.py`.
+- Qwen2.5 and Qwen3 gave identical token counts for all 3,000 sample sentences, and Gemma 3 and Gemini 3.8 Flash did too (checked 2026-10-11). Treat each pair as one tokenizer in comparisons. The Gemma 3 / Gemini match also supports the Gemini overhead calibration (1 token); it was not verified against an official statement.
 
 ### prices.csv
 - Source: official provider pricing pages (Anthropic https://platform.claude.com/docs/en/about-claude/pricing; Google https://ai.google.dev/gemini-api/docs/pricing), plus one illustrative row.
