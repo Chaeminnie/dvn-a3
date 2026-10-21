@@ -73,7 +73,7 @@ Pipeline: `scripts/01_fetch_flores.py` to `02_count_tokens.py` to `03_aggregate.
 - Token counts only, list prices only, input tokens only in the calculator plan.
 - `language_mix.csv` is an equal-weight placeholder, not real usage data.
 - Claude Haiku 5.5 is the current Haiku but was not counted.
-- 9 of 12 tokenizer release dates are not yet verified (`date_basis` column).
+- Release dates for all 12 tokenizers are checked against official provider pages (`date_basis` = `official`). Gemma 2 uses the gemma-2-2b release (2024-07-31), the checkpoint we measured, not the 9B/27B release (2024-06-27). Llama 3 (2024-04-18) is used for the Llama 3.2 tokenizer; that Llama 3.2 reuses the Llama 3 tokenizer was not verified.
 
 ## Licences and attribution
 

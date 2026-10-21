@@ -1,10 +1,10 @@
 tokenizer_id,library,source_name,vocab_size,organisation,family,generation_order,load_args,release_date,source_url,date_basis
 gpt2,tiktoken,gpt2,50257,OpenAI,gpt,1,,2019-02-14,https://openai.com/index/better-language-models/,official
-cl100k_base,tiktoken,cl100k_base,100277,OpenAI,gpt,2,,2022-12-15,https://github.com/openai/tiktoken/blob/main/tiktoken_ext/openai_public.py,from_memory_verify
-o200k_base,tiktoken,o200k_base,200019,OpenAI,gpt,3,,2024-05-13,https://github.com/openai/tiktoken/blob/main/tiktoken_ext/openai_public.py,from_memory_verify
-qwen2.5,transformers,Qwen/Qwen2.5-0.5B,151665,Alibaba (Qwen),qwen,1,,2024-09-19,https://qwen.ai/blog?id=qwen2.5,official
-qwen3,transformers,Qwen/Qwen3-0.6B,151669,Alibaba (Qwen),qwen,2,,2025-04-29,https://qwen.ai/blog?id=qwen3,official
-gemma2,transformers,google/gemma-2-2b,256000,Google,gemma,1,,2024-06-27,https://ai.google.dev/gemma/docs/releases,official
+cl100k_base,tiktoken,cl100k_base,100277,OpenAI,gpt,2,,2022-12-15,https://openai.com/blog/new-and-improved-embedding-model,official
+o200k_base,tiktoken,o200k_base,200019,OpenAI,gpt,3,,2024-05-13,https://openai.com/index/hello-gpt-4o/,official
+qwen2.5,transformers,Qwen/Qwen2.5-0.5B,151665,Alibaba (Qwen),qwen,1,,2024-09-19,https://qwenlm.github.io/blog/qwen2.5/,official
+qwen3,transformers,Qwen/Qwen3-0.6B,151669,Alibaba (Qwen),qwen,2,,2025-04-29,https://qwenlm.github.io/blog/qwen3/,official
+gemma2,transformers,google/gemma-2-2b,256000,Google,gemma,1,,2024-07-31,https://ai.google.dev/gemma/docs/releases,official
 gemma3,transformers,google/gemma-3-1b-it,262145,Google,gemma,2,,2025-03-10,https://ai.google.dev/gemma/docs/releases,official
 llama3,transformers,meta-llama/Llama-3.2-1B,128256,Meta,llama,1,,2024-04-18,https://ai.meta.com/blog/meta-llama-3/,official
 mistral_nemo,transformers,mistralai/Mistral-Nemo-Instruct-2407,131072,Mistral AI,mistral,1,{'fix_mistral_regex': True},2024-07-18,https://mistral.ai/fr/news/mistral-nemo/,official

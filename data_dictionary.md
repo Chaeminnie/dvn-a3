@@ -1,7 +1,7 @@
 # Data dictionary
 
 Project: DVN Assignment 3 — do some languages cost more tokens than others?
-Last updated: 2026-10-11. Data pipeline: Chaemin Jin.
+Last updated: 2026-10-22. Data pipeline: Chaemin Jin.
 
 Conventions
 - PK = primary key. "Premium" = total tokens for a language divided by total tokens for English, same tokenizer, same FLORES+ sentences (English = 1.0).
@@ -32,7 +32,7 @@ Conventions
 - Source: libraries, Hugging Face tokenizer repositories (only tokenizer files, not model weights) and the providers' token-counting endpoints.
 - Columns: `tokenizer_id` (text), `library` (tiktoken / transformers / api), `source_name` (text; tiktoken encoding, Hugging Face repo id or API model name), `vocab_size` (integer; `n_vocab` for tiktoken, `len(tokenizer)` for Hugging Face, which includes added/special tokens; "n/a" for API models), `organisation` (text), `family` (text), `generation_order` (integer; 1 = oldest; comparable only within one family), `load_args` (text; extra arguments used when loading), `release_date` (date; from `tokenizers_manual.csv`), `source_url` (text; from `tokenizers_manual.csv` where given, otherwise the Hugging Face repository URL), `date_basis` (text; `official` = checked against the provider's official page, `from_memory_verify` = entered by the team and not yet verified).
 - PK: `tokenizer_id`. Rows: 12. Retrieved: 2026-10-11.
-- Release dates: Claude Haiku 4.5 (2025-10-15), Claude Sonnet 5.5 (2026-09-28) and Gemini 3.8 Flash (2026-09-02) are checked against the providers' release notes. The other nine dates are marked `from_memory_verify` until checked against the Hugging Face repository history or the provider's announcement. For tiktoken encodings the date is the first model that used the encoding, not a file date.
+- Release dates: all 12 dates are checked against the providers' official announcements or release notes (`date_basis` = `official`; URLs in `source_url`). Gemma 2 uses the gemma-2-2b release (2024-07-31), the checkpoint we measured; the 9B/27B models were released on 2024-06-27. Llama 3 (2024-04-18) is used for the Llama 3.2 tokenizer; that Llama 3.2 reuses the Llama 3 tokenizer was not verified. For tiktoken encodings the date is the first model that used the encoding, not a file date.
 - Licences: Qwen3-0.6B Apache-2.0 and Mistral-Nemo-Instruct-2407 Apache-2.0 (checked on the model pages 2026-10-07); gemma-3-1b-it Gemma Terms of Use (gated, terms accepted). TODO to verify: Qwen2.5-0.5B, gemma-2-2b, Llama-3.2-1B (Llama 3.2 Community Licence, gated, terms accepted), tiktoken encodings.
 - Notes: `mistral_nemo` is loaded with `fix_mistral_regex=True` because the library warns that the default regex tokenises incorrectly; it was not cross-checked against an independent implementation. Mistral Nemo dates from 2024, so it is a 2024 Tekken baseline. The generation_order of the two Claude models is an assumption based on the provider's pricing page (Claude 4.7 and later use a newer tokenizer).
 - Identical tokenisation (checked 2026-10-11 on the sample): Qwen2.5 and Qwen3 give identical token counts on all 3,000 sentences, and Gemma 3 and Gemini 3.8 Flash give identical counts on all 3,000 sentences. The two Qwen vocabularies differ in size (151,665 vs 151,669), so the equality may come from shared merges plus different special tokens; this was not verified. Treat each pair as one tokenizer in charts, or label them as identical, and do not present them as independent generations.
@@ -101,4 +101,4 @@ Conventions
 - On the sample, Claude Sonnet 5.5 produced 33-46% more tokens than Haiku 4.5 for Latin-script languages (French +33%, English +46%) and about the same (-1% to +0.4%) for the others. The mechanism is unknown. Because English becomes more expensive, the premium vs English looks lower for non-Latin languages even though their absolute token counts did not change. Show absolute tokens per sentence next to premiums.
 - Qwen2.5 = Qwen3 and Gemma 3 = Gemini 3.8 Flash give identical counts (see tokenizers.csv notes); they are not independent data points.
 - Claude Haiku 5.5 is the current Haiku but was not counted.
-- Nine of twelve release dates are not yet verified (`date_basis` = `from_memory_verify`).
+- Llama 3.2 reuses the Llama 3 tokenizer and release date; this was not verified.
