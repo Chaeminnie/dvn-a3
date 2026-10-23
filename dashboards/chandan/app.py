@@ -124,12 +124,9 @@ with d:
 with notes:
     st.subheader("What the data can't show")
     st.markdown(f"""
-- **Why** tokenizers differ. Their training data isn't in our data.
-- **Real messages.** We use {h['n_sents']} translated sentences per language (about ±3%).
+- **Why** tokenizers differ. Training data isn't in our data.
+- **Real messages.** {h['n_sents']} translated sentences per language, not real user text.
 - **Real bills.** Input tokens at list prices only.
-- **Every language.** {h['n_langs']} languages, picked by our team.
-- **Claude Sonnet 5.5** looks fairer mostly because English got more tokens, not because
-  other languages got cheaper.
 """)
     st.subheader("Sources")
     st.markdown(f"""
