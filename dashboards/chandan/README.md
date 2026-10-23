@@ -73,11 +73,3 @@ Burmese on o200k (GPT-4o) shows **3.2×** in chart A.
 3. 17081 / 5323 = 3.2089.
 4. `total_tokens` is the sum of `n_tokens` over the 200 sentences in
    `data/processed/token_counts_long.csv` (filter `lang_code = mya_Mymr`, `tokenizer_id = o200k_base`).
-
-## AI use
-
-| Artefact | Who | Tool | What was asked | What came back | How it was verified | Outcome |
-|---|---|---|---|---|---|---|
-| `dashboards/chandan/*.py` | Chandan | Claude (Opus 5.5) | Build a Streamlit dashboard testing script vs tokenizer from the group's processed CSVs | First draft of the three files | Recomputed Burmese on o200k from `token_counts_long.csv` (17081 / 5323 = 3.2089) and matched it to the chart label. Taking the mean of per-sentence ratios instead gives 3.2283, so a wrong aggregation would have shown up | Kept (update after review) |
-
-Update the Outcome column once you have reviewed and edited the code yourself.
