@@ -73,3 +73,10 @@ Burmese on o200k (GPT-4o) shows **3.2×** in chart A.
 3. 17081 / 5323 = 3.2089.
 4. `total_tokens` is the sum of `n_tokens` over the 200 sentences in
    `data/processed/token_counts_long.csv` (filter `lang_code = mya_Mymr`, `tokenizer_id = o200k_base`).
+
+
+## AI Use
+
+| Who | Tool | How AI was used |
+|---|---|---|
+| Chandan | Claude (Opus 5.5) | Used Claude to assist with data analysis, review my work, and identify potential errors or inconsistencies. It helped me examine the results, check calculations, and improve the clarity of my analysis. I independently reviewed and verified the AI-assisted outputs before incorporating them into my final work. |
