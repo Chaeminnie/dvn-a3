@@ -87,3 +87,32 @@ Pipeline: `scripts/01_fetch_flores.py` to `02_count_tokens.py` to `03_aggregate.
 ## Status
 
 Data v1 is complete. Next: charts, the interactive cost calculator, and the AI provenance matrix.
+
+## Dashboard (Chaemin): pricing and monetisation view
+
+A Streamlit app for the persona "pricing and monetisation lead at a global AI service". It reads the pipeline output in `data/processed/` and `data/source/`, so it runs without any API keys.
+
+### What I built
+- **Cost vs English.** Token premium per language for one tokenizer. A diamond marks the UTF-8 byte ratio as a reference line.
+- **My language mix.** Enter a language mix and volumes (or upload a CSV). The app shows the blended premium, the monthly bill and the share of users who run out of quota. A price is remembered for each tokenizer, and open models show "no list price".
+- **Is it shrinking?** Gini, median premium or one language, over tokenizer release dates. Lines connect tokenizers of the same family only.
+
+### Design decisions (chosen, rejected, why)
+- Premium bars with a byte-ratio diamond, not bars alone or a "script floor" line. Gemma 3 puts Burmese at 2.44x, below the 3.56x byte ratio (7 of 15 languages), so a floor would be false.
+- Price remembered per tokenizer, not one shared field with a $1 default. Switching tokenizer used to reset the price, so the bill looked exact when the price was a guess.
+- Lines within one family, not one line through every tokenizer. Different families are different designs, and Qwen 2.5 and Qwen 3 give identical counts.
+
+### Run it
+    pip install -r app/requirements.txt
+    streamlit run app/streamlit_app.py
+
+Files: `app/streamlit_app.py`, `app/style.css`, `app/requirements.txt`, `.streamlit/config.toml`.
+Data it reads: `data/processed/token_premium.csv`, `data/processed/tokenizer_gini.csv`, `data/source/tokenizers.csv`, `data/source/lang_meta.csv`, `data/source/prices.csv`, `data/source/language_mix.csv`.
+
+### Known limits
+- The default language mix is equal weights, a placeholder, not real usage data.
+- Output length is assumed to grow by the same premium as input.
+- The sample is 200 sentences per language (largest difference from the full set: 3.13%).
+
+### AI use
+Claude (Anthropic) helped write the pipeline scripts and the dashboard code. I checked the headline number myself in pandas from the CSV: Burmese 91,589 / English 5,360 = 17.0875, which matches 17.1x in the app (GPT-2).

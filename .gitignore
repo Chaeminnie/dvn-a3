@@ -3,3 +3,11 @@ data/source/flores_full/
 .env
 .env
 .DS_Store
+.env
+.env.*
+*.key
+*.pem
+secrets.toml
+.venv/
+__pycache__/
+.DS_Store
