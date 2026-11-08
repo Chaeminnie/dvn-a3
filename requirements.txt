@@ -60,3 +60,5 @@ urllib3==2.6.3
 websockets==15.0.1
 xxhash==4.0.1
 yarl==1.22.0
+streamlit==1.63.0
+altair==6.3.0

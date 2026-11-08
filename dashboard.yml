@@ -1,0 +1,754 @@
+schema_version: 2
+dashboard:
+  title: Do some languages cost more tokens than others in AI language models?
+  subject: ai_language_inequality
+  question: Is the extra token cost of non-English languages a fixed property of their scripts, or a result
+    of tokeniser design choices that is shrinking?
+  audience: Pricing and monetisation lead at a global AI service, deciding whether to absorb the extra
+    token cost, price it into plans and quotas, or invest in a better tokeniser.
+  entrypoint: app.py
+  pages: []
+  sample_environment_variable: DASHBOARD_SAMPLE_MODE
+sources:
+- id: flores_plus
+  publisher: Open Language Data Initiative (OLDI)
+  title: FLORES+ devtest (200 sentences x 15 languages)
+  url: https://huggingface.co/datasets/openlanguagedata/flores_plus
+  licence: CC BY-SA 4.0
+  retrieved: '2026-10-07'
+  cadence: Static benchmark
+  status: snapshot
+  notes: Hugging Face dataset revision hash not recorded (TODO in data_dictionary.md).
+- id: tokenizers_src
+  publisher: OpenAI, Alibaba, Google, Meta, Mistral AI
+  title: 'Tokeniser files: tiktoken encodings and Hugging Face tokenisers'
+  url: https://github.com/openai/tiktoken
+  licence: Mixed; see data_dictionary.md (several licences still marked TODO)
+  retrieved: '2026-10-11'
+  cadence: Per model release
+  status: snapshot
+- id: anthropic_google_counts
+  publisher: Anthropic, Google
+  title: Token-counting API for Claude and Gemini models
+  url: https://platform.claude.com/docs/en/build-with-claude/token-counting
+  licence: Provider terms of service
+  retrieved: '2026-10-11'
+  cadence: Per API call
+  status: snapshot
+  notes: Raw counts in data/source/api_token_counts_raw.csv, run 2026-10-11.
+- id: team_assumption
+  publisher: Project team
+  title: Placeholder equal language weights
+  url: https://github.com/
+  licence: Project-authored
+  retrieved: '2026-10-11'
+  cadence: Not applicable
+  status: snapshot
+  notes: Not real usage data. Replace with a sourced language mix.
+- id: petrov_2023
+  publisher: Petrov, La Malfa, Torr and Bibi (University of Oxford); NeurIPS 2023
+  title: Language Model Tokenizers Introduce Unfairness Between Languages (Tables 1 and 5)
+  url: https://proceedings.neurips.cc/paper_files/paper/2023/hash/74bb24dca8334adce292883b4b651eda-Abstract.html
+  licence: Paper values transcribed for comparison; see the paper for terms
+  retrieved: '2026-10-19'
+  cadence: Static publication
+  status: snapshot
+  notes: 11 published premiums used only to check our computed values.
+datasets:
+- id: token_premium
+  source_ids:
+  - flores_plus
+  - tokenizers_src
+  sample: data/processed/token_premium.csv
+  processed_output: data/processed/token_premium.csv
+  format: csv
+  date_column: null
+  primary_key:
+  - lang_code
+  - tokenizer_id
+  minimum_rows: 180
+  latest_observation: '2026-10-11'
+  columns:
+    lang_code:
+      type: string
+      role: geography
+      nullable: false
+      allowed_values:
+      - amh_Ethi
+      - arb_Arab
+      - cmn_Hans
+      - deu_Latn
+      - eng_Latn
+      - fra_Latn
+      - hin_Deva
+      - jpn_Jpan
+      - kor_Hang
+      - mya_Mymr
+      - rus_Cyrl
+      - spa_Latn
+      - swh_Latn
+      - tam_Taml
+      - tha_Thai
+    tokenizer_id:
+      type: string
+      role: dimension
+      nullable: false
+      allowed_values:
+      - cl100k_base
+      - claude_haiku_4_5
+      - claude_sonnet_5_5
+      - gemini_3_8_flash
+      - gemma2
+      - gemma3
+      - gpt2
+      - llama3
+      - mistral_nemo
+      - o200k_base
+      - qwen2.5
+      - qwen3
+    n_sentences:
+      type: integer
+      role: measure
+      nullable: false
+      unit: sentences
+      minimum: 200
+      maximum: 200
+    total_tokens:
+      type: integer
+      role: measure
+      nullable: false
+      unit: tokens
+      minimum: 0
+      maximum: 1000000
+    total_chars:
+      type: integer
+      role: measure
+      nullable: false
+      unit: characters
+      minimum: 0
+      maximum: 1000000
+    total_bytes:
+      type: integer
+      role: measure
+      nullable: false
+      unit: bytes
+      minimum: 0
+      maximum: 1000000
+    mean_tokens_per_sentence:
+      type: number
+      role: measure
+      nullable: false
+      unit: tokens
+      minimum: 0
+      maximum: 1000
+    premium_vs_en:
+      type: number
+      role: measure
+      nullable: false
+      unit: ratio to English
+      minimum: 0.5
+      maximum: 30
+    byte_premium_vs_en:
+      type: number
+      role: measure
+      nullable: false
+      unit: ratio to English
+      minimum: 0.5
+      maximum: 10
+    premium_over_byte:
+      type: number
+      role: measure
+      nullable: false
+      unit: ratio
+      minimum: 0.2
+      maximum: 10
+  notes: Tokens for a language divided by tokens for English on the same tokeniser and the same 200 sentences.
+    Produced by run_all.sh.
+- id: token_counts_long
+  source_ids:
+  - flores_plus
+  - tokenizers_src
+  - anthropic_google_counts
+  sample: data/processed/token_counts_long.csv
+  processed_output: data/processed/token_counts_long.csv
+  format: csv
+  date_column: null
+  primary_key:
+  - lang_code
+  - sent_id
+  - tokenizer_id
+  minimum_rows: 36000
+  latest_observation: '2026-10-11'
+  columns:
+    lang_code:
+      type: string
+      role: geography
+      nullable: false
+      allowed_values:
+      - amh_Ethi
+      - arb_Arab
+      - cmn_Hans
+      - deu_Latn
+      - eng_Latn
+      - fra_Latn
+      - hin_Deva
+      - jpn_Jpan
+      - kor_Hang
+      - mya_Mymr
+      - rus_Cyrl
+      - spa_Latn
+      - swh_Latn
+      - tam_Taml
+      - tha_Thai
+    sent_id:
+      type: integer
+      role: dimension
+      nullable: false
+    tokenizer_id:
+      type: string
+      role: dimension
+      nullable: false
+      allowed_values:
+      - cl100k_base
+      - claude_haiku_4_5
+      - claude_sonnet_5_5
+      - gemini_3_8_flash
+      - gemma2
+      - gemma3
+      - gpt2
+      - llama3
+      - mistral_nemo
+      - o200k_base
+      - qwen2.5
+      - qwen3
+    n_tokens:
+      type: integer
+      role: measure
+      nullable: false
+      unit: tokens
+      minimum: 0
+      maximum: 5000
+    n_chars:
+      type: integer
+      role: measure
+      nullable: false
+      unit: characters
+      minimum: 0
+      maximum: 5000
+    n_bytes:
+      type: integer
+      role: measure
+      nullable: false
+      unit: bytes
+      minimum: 0
+      maximum: 20000
+- id: lang_meta
+  source_ids:
+  - flores_plus
+  sample: data/source/lang_meta.csv
+  processed_output: data/source/lang_meta.csv
+  format: csv
+  date_column: null
+  primary_key:
+  - lang_code
+  minimum_rows: 15
+  latest_observation: '2026-10-11'
+  columns:
+    lang_code:
+      type: string
+      role: geography
+      nullable: false
+    iso_639_3:
+      type: string
+      role: dimension
+      nullable: false
+    iso_15924:
+      type: string
+      role: dimension
+      nullable: false
+    language:
+      type: string
+      role: geography
+      nullable: false
+    uses_spaces:
+      type: string
+      role: dimension
+      nullable: false
+      allowed_values:
+      - 'no'
+      - partial
+      - 'yes'
+- id: tokenizers
+  source_ids:
+  - tokenizers_src
+  sample: data/source/tokenizers.csv
+  processed_output: data/source/tokenizers.csv
+  format: csv
+  date_column: null
+  primary_key:
+  - tokenizer_id
+  minimum_rows: 12
+  latest_observation: '2026-10-11'
+  columns:
+    tokenizer_id:
+      type: string
+      role: dimension
+      nullable: false
+    library:
+      type: string
+      role: dimension
+      nullable: false
+    source_name:
+      type: string
+      role: dimension
+      nullable: false
+    vocab_size:
+      type: number
+      role: dimension
+      nullable: true
+    organisation:
+      type: string
+      role: dimension
+      nullable: false
+    family:
+      type: string
+      role: dimension
+      nullable: false
+    generation_order:
+      type: integer
+      role: dimension
+      nullable: false
+    load_args:
+      type: string
+      role: dimension
+      nullable: true
+    release_date:
+      type: date
+      role: dimension
+      nullable: false
+    source_url:
+      type: string
+      role: dimension
+      nullable: false
+    date_basis:
+      type: string
+      role: dimension
+      nullable: false
+  notes: Nine of twelve release dates have date_basis from_memory_verify (unverified).
+- id: tokenizer_gini
+  source_ids:
+  - flores_plus
+  - tokenizers_src
+  sample: data/processed/tokenizer_gini.csv
+  processed_output: data/processed/tokenizer_gini.csv
+  format: csv
+  date_column: null
+  primary_key:
+  - tokenizer_id
+  minimum_rows: 12
+  latest_observation: '2026-10-11'
+  columns:
+    tokenizer_id:
+      type: string
+      role: dimension
+      nullable: false
+    n_languages:
+      type: integer
+      role: dimension
+      nullable: false
+    gini:
+      type: number
+      role: measure
+      nullable: false
+      unit: Gini coefficient of the language premiums (0 = equal, 1 = most unequal)
+      minimum: 0
+      maximum: 1
+    gini_byte_baseline:
+      type: number
+      role: measure
+      nullable: false
+      unit: Gini coefficient of the byte premiums (the same for every tokeniser)
+      minimum: 0
+      maximum: 1
+    max_premium:
+      type: number
+      role: measure
+      nullable: false
+      unit: ratio to English
+      minimum: 1
+      maximum: 30
+    max_premium_lang:
+      type: string
+      role: geography
+      nullable: false
+      allowed_values:
+      - amh_Ethi
+      - mya_Mymr
+    median_premium:
+      type: number
+      role: measure
+      nullable: false
+      unit: ratio to English
+      minimum: 1
+      maximum: 30
+  notes: One row per tokeniser. Gini, maximum and median are taken across the 15 languages (English included at 1.0x).
+- id: language_mix
+  source_ids:
+  - team_assumption
+  sample: data/source/language_mix.csv
+  processed_output: data/source/language_mix.csv
+  format: csv
+  date_column: null
+  primary_key:
+  - lang_code
+  minimum_rows: 15
+  latest_observation: '2026-10-11'
+  columns:
+    lang_code:
+      type: string
+      role: geography
+      nullable: false
+      allowed_values:
+      - amh_Ethi
+      - arb_Arab
+      - cmn_Hans
+      - deu_Latn
+      - eng_Latn
+      - fra_Latn
+      - hin_Deva
+      - jpn_Jpan
+      - kor_Hang
+      - mya_Mymr
+      - rus_Cyrl
+      - spa_Latn
+      - swh_Latn
+      - tam_Taml
+      - tha_Thai
+    user_share:
+      type: number
+      role: measure
+      nullable: false
+      unit: share of users
+      minimum: 0
+      maximum: 1
+    source_tier:
+      type: string
+      role: dimension
+      nullable: false
+      allowed_values:
+      - assumption
+    note:
+      type: string
+      role: dimension
+      nullable: false
+  notes: Placeholder equal weights, not usage data; user-editable in the calculator.
+- id: flores_sample
+  source_ids:
+  - flores_plus
+  sample: data/source/flores_sample.csv
+  processed_output: data/source/flores_sample.csv
+  format: csv
+  date_column: null
+  primary_key:
+  - lang_code
+  - sent_id
+  minimum_rows: 3000
+  latest_observation: '2026-10-11'
+  columns:
+    lang_code:
+      type: string
+      role: geography
+      nullable: false
+      allowed_values:
+      - amh_Ethi
+      - arb_Arab
+      - cmn_Hans
+      - deu_Latn
+      - eng_Latn
+      - fra_Latn
+      - hin_Deva
+      - jpn_Jpan
+      - kor_Hang
+      - mya_Mymr
+      - rus_Cyrl
+      - spa_Latn
+      - swh_Latn
+      - tam_Taml
+      - tha_Thai
+    sent_id:
+      type: integer
+      role: dimension
+      nullable: false
+    text:
+      type: string
+      role: dimension
+      nullable: false
+- id: published_premiums
+  source_ids:
+  - petrov_2023
+  sample: data/reference/published_premiums.csv
+  processed_output: data/reference/published_premiums.csv
+  format: csv
+  date_column: null
+  primary_key:
+  - lang_code
+  - measure
+  minimum_rows: 11
+  latest_observation: '2023-12-31'
+  columns:
+    lang_code:
+      type: string
+      role: geography
+      nullable: false
+      allowed_values:
+      - arb_Arab
+      - cmn_Hans
+      - deu_Latn
+      - fra_Latn
+      - jpn_Jpan
+      - mya_Mymr
+      - spa_Latn
+    language_in_paper:
+      type: string
+      role: dimension
+      nullable: false
+    measure:
+      type: string
+      role: dimension
+      nullable: false
+      allowed_values:
+      - bytes
+      - tokens
+    tokenizer_id:
+      type: string
+      role: dimension
+      nullable: true
+      allowed_values:
+      - cl100k_base
+    published_value:
+      type: number
+      role: measure
+      nullable: false
+      unit: ratio to English
+      minimum: 0
+      maximum: 30
+    source:
+      type: string
+      role: dimension
+      nullable: false
+    table:
+      type: string
+      role: dimension
+      nullable: false
+      allowed_values:
+      - Table 1
+      - Table 5
+  notes: Values transcribed from the paper for a cross-check. Not used for any chart.
+views:
+- id: tokeniser_trend
+  dataset_id: tokenizer_gini
+  page: app.py
+  title: 'Newer tokenisers are usually fairer than older ones: 3 of 4 families improved across 12 tokenisers'
+  unit: Gini (0 to 1) and premium (tokens vs English)
+  source_ids:
+  - flores_plus
+  - tokenizers_src
+  controls:
+  - key: trend_measure
+    type: radio
+    label: Measure
+    default_value: gini
+    test_value: max_premium
+    filter:
+      column: measure
+      operator: eq
+  - key: trend_scope
+    type: radio
+    label: Families
+    default_value: versions
+    test_value: all
+    filter:
+      column: n_versions
+      operator: gt
+  outputs:
+  - chart
+  - metric
+  - download
+- id: premium_by_language
+  dataset_id: token_premium
+  page: app.py
+  title: English is the cheapest language on all 12 tokenisers; other languages need 1.02× to 17.09× as
+    many tokens
+  unit: tokens vs English (ratio)
+  source_ids:
+  - flores_plus
+  - tokenizers_src
+  controls:
+  - key: tokenizer_filter
+    type: selectbox
+    label: Tokeniser
+    default_value: o200k_base
+    test_value: gpt2
+    expected_text: 'Selected: 15 of 15 languages'
+    filter:
+      column: tokenizer_id
+      operator: eq
+  - key: language_filter
+    type: multiselect
+    label: Languages
+    default_value:
+    - Amharic
+    - Arabic (Modern Standard)
+    - Burmese
+    - Chinese (Simplified)
+    - English
+    - French
+    - German
+    - Hindi
+    - Japanese
+    - Korean
+    - Russian
+    - Spanish
+    - Swahili
+    - Tamil
+    - Thai
+    test_value:
+    - Burmese
+    expected_text: 'Selected: Burmese'
+    empty_test_value: []
+    empty_expected_text: No observations match the selected filters.
+    filter:
+      column: language
+      operator: isin
+  outputs:
+  - chart
+  - metric
+  - download
+- id: buffer_by_language
+  dataset_id: token_counts_long
+  page: app.py
+  title: On all 12 tokenisers, fitting 95% of sentences takes 24% to 43% more tokens than the average premium suggests
+  unit: premium per sentence (tokens vs English) and buffer (%)
+  source_ids:
+  - flores_plus
+  - tokenizers_src
+  - anthropic_google_counts
+  controls:
+  - key: buffer_tokenizer
+    type: selectbox
+    label: Tokeniser
+    default_value: o200k_base
+    test_value: gpt2
+    filter:
+      column: tokenizer_id
+      operator: eq
+  - key: buffer_language_filter
+    type: multiselect
+    label: Languages
+    default_value: &id001
+    - Amharic
+    - Arabic (Modern Standard)
+    - Burmese
+    - Chinese (Simplified)
+    - French
+    - German
+    - Hindi
+    - Japanese
+    - Korean
+    - Russian
+    - Spanish
+    - Swahili
+    - Tamil
+    - Thai
+    test_value:
+    - Hindi
+    filter:
+      column: language
+      operator: isin
+    expected_text: 'Selected: Hindi'
+    empty_test_value: []
+    empty_expected_text: No observations match the selected filters.
+  - key: coverage_level
+    type: radio
+    label: Share of sentences the quota should fit
+    default_value: 0.95
+    test_value: 0.8
+    filter:
+      column: premium
+      operator: quantile
+  outputs:
+  - chart
+  - metric
+  - download
+- id: pricing_tiers
+  dataset_id: token_premium
+  page: app.py
+  title: 'Three price tiers beat one price on all 12 tokenisers: the average overcharge is 13% to 240%, against 69% to 481% for one price'
+  unit: premium (x English) and overcharge (%)
+  source_ids:
+  - flores_plus
+  - tokenizers_src
+  - team_assumption
+  controls:
+  - key: tier_tokenizer
+    type: selectbox
+    label: Tokeniser
+    default_value: o200k_base
+    test_value: gpt2
+    filter:
+      column: tokenizer_id
+      operator: eq
+  - key: tier_bounds
+    type: slider
+    label: Tier cut-offs (premium ×)
+    default_value:
+    - 1.5
+    - 2.1
+    test_value:
+    - 2.0
+    - 4.0
+    filter:
+      column: premium_vs_en
+      operator: bins
+  - key: tier_language_filter
+    type: multiselect
+    label: Languages served
+    default_value: *id001
+    test_value:
+    - Hindi
+    filter:
+      column: language
+      operator: isin
+    expected_text: 'Selected: Hindi'
+    empty_test_value: []
+    empty_expected_text: No observations match the selected filters.
+  outputs:
+  - chart
+  - metric
+  - download
+pipeline:
+  acquisition_method: script
+  acquisition_path: scripts/02_count_tokens.py
+  transform_command:
+  - bash
+  - run_all.sh
+  download_declared: true
+  download_label: Download filtered data
+  date_label: Latest observation
+topic_integrity:
+  indicator_codes: []
+  original_source_organizations:
+  - Open Language Data Initiative (FLORES+)
+  - OpenAI
+  - Alibaba
+  - Google
+  - Meta
+  - Mistral AI
+  - Anthropic
+  latest_observation_year: 2026
+  indicator_definition: Premium = total tokens for a language divided by total tokens for English on the
+    same tokeniser and the same 200 FLORES+ sentences.
+  aggregation_method: Sums of tokens over 200 sentences per language and tokeniser; Gini coefficient over
+    the 15 language premiums of one tokeniser.
+  classification_vintage: 'Not applicable: language and script codes follow FLORES+ (ISO 639-3 and ISO
+    15924).'
