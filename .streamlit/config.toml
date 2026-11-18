@@ -1,0 +1,20 @@
+# Base theme. Detailed styling is in app/style.py.
+[theme]
+base = "light"
+primaryColor = "#3182f6"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f2f4f6"
+textColor = "#191f28"
+font = "sans-serif"
+borderColor = "#e5e8eb"
+showWidgetBorder = false
+baseRadius = "medium"
+
+[theme.sidebar]
+backgroundColor = "#f9fafb"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
