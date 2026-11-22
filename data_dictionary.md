@@ -1,11 +1,12 @@
 # Data dictionary
 
 Project: DVN Assignment 3 — do some languages cost more tokens than others?
-Last updated: 2026-10-22. Data pipeline: Chaemin Jin.
+Last updated: 2026-11-22. Data pipeline: Chaemin Jin.
 
 Conventions
 - PK = primary key. "Premium" = total tokens for a language divided by total tokens for English, same tokenizer, same FLORES+ sentences (English = 1.0).
 - Token counts exclude special tokens (BOS/EOS) and use Unicode NFC-normalised text.
+- "Latest observation" = the most recent date in the data. For snapshot files that are not time series, it is the run or collection date.
 - Regenerate all processed files with `bash run_all.sh` (see run_all.sh for options).
 - Tokenizers are defined once in `scripts/tokenizer_config.py`.
 - Hand-maintained fields live in `data/source/tokenizers_manual.csv` so that re-running the pipeline never overwrites them.
@@ -17,23 +18,23 @@ Conventions
 - Licence: CC BY-SA 4.0. This file redistributes a subset of sentences. Attribution: Open Language Data Initiative (OLDI), based on FLORES-200 (NLLB Team et al., 2022, arXiv:2207.04672). Share-alike applies.
 - Columns: `lang_code` (text; FLORES+ config name `language_script`, e.g. `kor_Hang`), `sent_id` (integer; FLORES+ `id`; the same id is the same sentence translated into every language), `text` (text; sentence as released).
 - PK: (`lang_code`, `sent_id`). Rows: 3,000 (15 languages x 200 sentences).
-- Time coverage: not a time series. Retrieved 2026-10-07. Hugging Face dataset revision hash: TODO (not recorded).
+- Time coverage: not a time series. Latest observation: not applicable (translated text, no dates); retrieved 2026-10-07. Hugging Face dataset revision: e707e62e762a9e2faca3933aa315f4665cc3cd8f (latest commit of the dataset on or before 2026-10-07, committed 2026-10-01; the exact revision was not recorded at download time).
 - Transform: `scripts/01_fetch_flores.py` downloads the 1,012-sentence devtest per language, validates it (1,012 rows, unique ids, no empty text, same id set as English) and keeps a sample of 200 ids drawn with fixed seed 42 (same ids for all languages). The full devtest stays local (git-ignored).
 
 ### lang_meta.csv
 - Source: written by the project team; codes follow FLORES+ config names.
 - Licence: project-authored; same as the repository.
 - Columns: `lang_code` (text), `iso_639_3` (text), `iso_15924` (text, script), `language` (text, display name), `uses_spaces` (text: yes / partial / no).
-- PK: `lang_code`. Rows: 15.
+- PK: `lang_code`. Rows: 15. Time coverage and latest observation: not applicable (static lookup table).
 - Note: `uses_spaces` is a manual classification by the team, not taken from an external source.
 - Transform: `scripts/01_fetch_flores.py` (the LANGS list).
 
 ### tokenizers.csv
 - Source: libraries, Hugging Face tokenizer repositories (only tokenizer files, not model weights) and the providers' token-counting endpoints.
 - Columns: `tokenizer_id` (text), `library` (tiktoken / transformers / api), `source_name` (text; tiktoken encoding, Hugging Face repo id or API model name), `vocab_size` (integer; `n_vocab` for tiktoken, `len(tokenizer)` for Hugging Face, which includes added/special tokens; "n/a" for API models), `organisation` (text), `family` (text), `generation_order` (integer; 1 = oldest; comparable only within one family), `load_args` (text; extra arguments used when loading), `release_date` (date; from `tokenizers_manual.csv`), `source_url` (text; from `tokenizers_manual.csv` where given, otherwise the Hugging Face repository URL), `date_basis` (text; `official` = checked against the provider's official page, `from_memory_verify` = entered by the team and not yet verified).
-- PK: `tokenizer_id`. Rows: 12. Retrieved: 2026-10-11.
+- PK: `tokenizer_id`. Rows: 12. Retrieved: 2026-10-11. Time coverage: release dates 2019-02-14 to 2026-09-28. Latest observation: 2026-09-28 (Claude Sonnet 5.5 release).
 - Release dates: all 12 dates are checked against the providers' official announcements or release notes (`date_basis` = `official`; URLs in `source_url`). Gemma 2 uses the gemma-2-2b release (2024-07-31), the checkpoint we measured; the 9B/27B models were released on 2024-06-27. Llama 3 (2024-04-18) is used for the Llama 3.2 tokenizer; that Llama 3.2 reuses the Llama 3 tokenizer was not verified. For tiktoken encodings the date is the first model that used the encoding, not a file date.
-- Licences: Qwen3-0.6B Apache-2.0 and Mistral-Nemo-Instruct-2407 Apache-2.0 (checked on the model pages 2026-10-07); gemma-3-1b-it Gemma Terms of Use (gated, terms accepted). TODO to verify: Qwen2.5-0.5B, gemma-2-2b, Llama-3.2-1B (Llama 3.2 Community Licence, gated, terms accepted), tiktoken encodings.
+- Licences: Qwen3-0.6B Apache-2.0 and Mistral-Nemo-Instruct-2407 Apache-2.0 (checked on the model pages 2026-10-07); gemma-3-1b-it Gemma Terms of Use (gated, terms accepted). Checked 2026-11-22: Qwen2.5-0.5B Apache-2.0; gemma-2-2b Gemma Terms of Use (gated, terms accepted); Llama-3.2-1B Llama 3.2 Community License (gated, terms accepted); tiktoken library MIT (OpenAI, Shantanu Jain). tiktoken downloads its encoding files (gpt2, cl100k_base, o200k_base) from OpenAI's public storage at run time; we found no separate licence statement for those files and they are not stored in this repository. For the Hugging Face models we use only the tokenizer files, not the model weights, and do not redistribute them. Claude and Gemini tokenizers are not distributed; they are used only through the providers' counting endpoints under the providers' API terms.
 - Notes: `mistral_nemo` is loaded with `fix_mistral_regex=True` because the library warns that the default regex tokenises incorrectly; it was not cross-checked against an independent implementation. Mistral Nemo dates from 2024, so it is a 2024 Tekken baseline. The generation_order of the two Claude models is an assumption based on the provider's pricing page (Claude 4.7 and later use a newer tokenizer).
 - Identical tokenisation (checked 2026-10-11 on the sample): Qwen2.5 and Qwen3 give identical token counts on all 3,000 sentences, and Gemma 3 and Gemini 3.8 Flash give identical counts on all 3,000 sentences. The two Qwen vocabularies differ in size (151,665 vs 151,669), so the equality may come from shared merges plus different special tokens; this was not verified. Treat each pair as one tokenizer in charts, or label them as identical, and do not present them as independent generations.
 - Transform: `scripts/tokenizer_config.py` (definitions), `scripts/05_build_tokenizer_registry.py` (builds the table), `scripts/05b_apply_manual_fields.py` (applies `tokenizers_manual.csv`).
@@ -41,55 +42,55 @@ Conventions
 ### tokenizers_manual.csv
 - Source: written by the project team from official pages (see `date_basis`).
 - Columns: `tokenizer_id` (text), `release_date` (date), `source_url` (text; empty = keep the existing URL), `date_basis` (official / from_memory_verify).
-- PK: `tokenizer_id`. Rows: 12.
+- PK: `tokenizer_id`. Rows: 12. Licence: project-authored facts taken from the providers' official pages (see `source_url`). Time coverage: release dates 2019-02-14 to 2026-09-28; latest observation 2026-09-28.
 - Purpose: hand-curated values that script 05 would otherwise overwrite. Edit this file, then run `python scripts/05b_apply_manual_fields.py`.
 
 ### prices.csv
 - Source: official provider pricing pages (Anthropic https://platform.claude.com/docs/en/about-claude/pricing; Google https://ai.google.dev/gemini-api/docs/pricing), plus one illustrative row.
 - Columns: `price_id`, `provider`, `model_api_name`, `tokenizer_id`, `input_usd_per_1m` and `output_usd_per_1m` (USD per 1M tokens), `price_note`, `valid_from` and `valid_until` (dates), `source_tier` (official / assumption), `source_url`, `collected_on` (date).
-- PK: `price_id`. Rows: 5. Collected 2026-10-11 (prices unchanged since 2026-10-07); re-check before submission. The Gemini 3.8 Flash price changes on 2027-01-01 and has one row per period.
+- PK: `price_id`. Rows: 5. Collected 2026-10-11 (prices unchanged since 2026-10-07). Re-checked 2026-11-22: Claude Sonnet 5.5 (2.00 / 10.00), Claude Haiku 4.5 (1.00 / 5.00) and Gemini 3.8 Flash (0.75 / 3.75 until 2026-12-31, then 1.50 / 7.50 from 2027-01-01) are unchanged. Licence: list prices are factual public information copied by hand; no separate licence, the providers' site terms apply. Time coverage: prices valid 2026-10-11 to 2027-01-01 and later; latest observation: 2026-11-22 (re-check), `collected_on` in the file is 2026-10-11. The Gemini 3.8 Flash price changes on 2027-01-01 and has one row per period.
 - Scope: list prices for input and output tokens. Cached, batch, priority and regional prices are not modelled. The `illustrative` row (tokenizer_id `all`) is an assumption, not a quote. Claude Haiku 4.5 is no longer the current Haiku (Haiku 5.5 is listed first on the pricing page) and Haiku 5.5 was not counted.
 
 ### language_mix.csv
 - Source: none. Placeholder with equal weights (1/15 per language, rounded to 0.0667).
 - Columns: `lang_code` (text), `user_share` (decimal, share of users), `source_tier` (assumption), `note` (text).
-- PK: `lang_code`. Rows: 15.
+- PK: `lang_code`. Rows: 15. Licence: project-authored placeholder; same as the repository. Time coverage and latest observation: not applicable (assumption, not an observation).
 - Note: this is NOT real usage data. It will be replaced by a sourced dataset or user input in the app. Because of rounding the shares sum to 1.0005; normalise before use (check tolerance 0.001).
 - Transform: generated from `lang_meta.csv` (one-line script).
 
 ### api_token_counts_raw.csv
 - Source: free token-counting endpoints of Anthropic (https://platform.claude.com/docs/en/build-with-claude/token-counting) and Google Gemini (https://ai.google.dev/gemini-api/docs/tokens), called on the committed sample sentences. The sentences are FLORES+ (CC BY-SA 4.0) and were sent to the providers' counting endpoints; whether Gemini's free tier uses counting inputs to improve products was not verified.
 - Columns: `tokenizer_id`, `lang_code`, `sent_id`, `provider`, `model_api_name`, `raw_count` (tokens as returned, includes a constant message overhead), `overhead_tokens` (calibrated overhead for that run), `collected_at` (UTC timestamp).
-- PK: (`tokenizer_id`, `lang_code`, `sent_id`). Rows: 9,000 (3 models x 3,000 sentences). Collected 2026-10-11.
+- PK: (`tokenizer_id`, `lang_code`, `sent_id`). Rows: 9,000 (3 models x 3,000 sentences). Collected 2026-10-11 (latest observation: 2026-10-11). Licence: numeric counts only, no sentence text; derived from FLORES+ (CC BY-SA 4.0), so the same attribution applies. The providers' API terms apply to the calls.
 - Counts only: no token boundaries and no round-trip check.
 - Transform: `scripts/06_fetch_api_counts.py` (needs API keys; run only with `bash run_all.sh --refresh-api`). `scripts/02_count_tokens.py` uses n_tokens = raw_count - overhead_tokens.
 
 ### api_overhead.csv
 - Calibration log: per model, overhead = count of probe words ("a", "the", "and") minus 1. All probes must agree, otherwise the model is skipped. Assumption: each probe is a single token. Overhead used: Haiku 4.5 = 7, Sonnet 5.5 = 8, Gemini 3.8 Flash = 1.
-- Columns: `tokenizer_id`, `provider`, `model_api_name`, `overhead_tokens`, `probes`, `calibrated_at`. PK: `tokenizer_id`. Rows: 3.
+- Columns: `tokenizer_id`, `provider`, `model_api_name`, `overhead_tokens`, `probes`, `calibrated_at`. PK: `tokenizer_id`. Rows: 3. Licence: project-authored calibration log; same as the repository. Latest observation: 2026-10-11 (calibrated_at).
 - Validation (2026-10-11, `scripts/check_api_overhead.py`, not part of the pipeline): for four probe scripts (English, French, Korean, Tamil), the fitted intercept of tokens vs number of repeated words was 7.0 for Haiku 4.5, 8.0 for Sonnet 5.5 (7.0 for Korean) and 1.0 for Gemini 3.8 Flash. The constant-overhead assumption therefore holds within +/-1 token (about 1.5% of a 68-token sentence).
 
 ## Processed files (data/processed/)
 
 ### token_counts_long.csv
 - Columns: `lang_code`, `sent_id`, `tokenizer_id`, `n_tokens` (integer, tokens in the sentence), `n_chars` (integer, characters after NFC), `n_bytes` (integer, UTF-8 bytes).
-- PK: (`lang_code`, `sent_id`, `tokenizer_id`). Rows: 36,000 (15 x 200 x 12). Run date: 2026-10-11.
+- PK: (`lang_code`, `sent_id`, `tokenizer_id`). Rows: 36,000 (15 x 200 x 12). Run date and latest observation: 2026-10-11 (not a time series). Licence: counts only, no sentence text; derived from FLORES+ (CC BY-SA 4.0), attribution as for `flores_sample.csv`.
 - Transform: `scripts/02_count_tokens.py`. Check: round-trip decode(encode(text)) == text for every sentence of the nine local tokenizers (0 failures). API models have no round-trip check.
 
 ### token_premium.csv
 - Columns: `lang_code`, `tokenizer_id`, `n_sentences`, `total_tokens`, `total_chars`, `total_bytes`, `mean_tokens_per_sentence`, `premium_vs_en` (ratio to English, same tokenizer), `byte_premium_vs_en` (UTF-8 bytes ratio to English, independent of the tokenizer), `premium_over_byte` (`premium_vs_en` / `byte_premium_vs_en`).
-- PK: (`lang_code`, `tokenizer_id`). Rows: 180. Values rounded to 4 decimals.
+- PK: (`lang_code`, `tokenizer_id`). Rows: 180. Values rounded to 4 decimals. Latest observation: 2026-10-11 (run date; not a time series). Licence: derived from FLORES+ (CC BY-SA 4.0), attribution as above.
 - Transform: `scripts/03_aggregate.py`. Checks: equal sentence counts per pair; English premium = 1.0.
 
 ### tokenizer_gini.csv
 - Columns: `tokenizer_id`, `n_languages` (integer), `gini` (0 = all languages cost the same, 1 = extreme inequality, computed over `premium_vs_en`), `gini_byte_baseline` (Gini of the byte premium, the encoding-only reference), `max_premium`, `max_premium_lang`, `median_premium`.
-- PK: `tokenizer_id`. Rows: 12. Valid only for the 15 languages in the file; not comparable with Gini values from other studies.
+- PK: `tokenizer_id`. Rows: 12. Valid only for the 15 languages in the file; not comparable with Gini values from other studies. Latest observation: 2026-10-11 (run date; not a time series). Licence: derived from FLORES+ (CC BY-SA 4.0), attribution as above.
 - Transform: `scripts/03_aggregate.py`.
 
 ### sample_vs_full_check.csv
 - Columns: `lang_code`, `tokenizer_id`, `premium_sample`, `premium_full` (same premium on all 1,012 sentences), `rel_diff` (|sample - full| / full).
 - PK: (`lang_code`, `tokenizer_id`). Rows: 135 (the nine local tokenizers only; API models were not checked on the full set).
-- Pass rule fixed before running: max relative difference <= 5%. Result: 3.13%, PASS.
+- Pass rule fixed before running: max relative difference <= 5%. Result: 3.13%, PASS. Latest observation: 2026-10-11 (run date; not a time series). Licence: derived from FLORES+ (CC BY-SA 4.0), attribution as above.
 - Transform: `scripts/04_validate_sample.py` (needs the local full FLORES+ files; `bash run_all.sh --full`).
 
 ## Known limitations

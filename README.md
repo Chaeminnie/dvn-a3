@@ -91,7 +91,7 @@ Pipeline: `scripts/01_fetch_flores.py` to `02_count_tokens.py` to `03_aggregate.
 ## Licences and attribution
 
 - Sentences: FLORES+ (CC BY-SA 4.0), Open Language Data Initiative, based on FLORES-200 (NLLB Team et al., 2022). The share-alike term applies to the sample file.
-- Tokenizers: see `data_dictionary.md` (a few licences are still marked TODO).
+- Tokenizers and prices: see `data_dictionary.md` for each source and licence.
 
 ## Team
 

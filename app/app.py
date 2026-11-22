@@ -101,4 +101,6 @@ with f2:
         verify.limitations()
 with f3:
     with st.expander("Data and AI disclosure", icon=":material/policy:"):
-        st.markdown("TODO: link to the AI provenance matrix and the disclosure statement in the README.")
+        st.markdown("AI use is listed per person, with the check each of us ran, in the "
+                    "[AI provenance matrix](https://github.com/Chaeminnie/dvn-a3/blob/main/AI_PROVENANCE.md). "
+                    "The disclosure statement is at the bottom of the same file.")
