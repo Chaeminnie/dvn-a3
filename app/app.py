@@ -11,7 +11,7 @@ import streamlit as st
 
 import data
 import style
-from sections import costs, overview, script, shrinking, styleguide, verify
+from sections import costs, overview, script, shrinking, verify
 
 st.set_page_config(page_title="Same sentence, different bill", page_icon=":material/translate:", layout="wide")
 style.inject_css()
@@ -39,9 +39,9 @@ for _k in list(ss.keys()):
     except Exception:
         pass
 
-# Sidebar: shared controls
+# Sidebar filters
 with st.sidebar:
-    st.markdown("<div class='dvn-label'>Shared controls · apply to every tab</div>", unsafe_allow_html=True)
+    st.markdown("<div class='dvn-label'>Filters</div>", unsafe_allow_html=True)
     tok_ids = list(data.TOKENIZER)
     tokenizer = st.selectbox("Tokenizer", tok_ids, format_func=data.TOKENIZER.get, key="tokenizer")
     others = sorted(l for l in D["langs"]["language"] if l != "English")
@@ -50,8 +50,6 @@ with st.sidebar:
     codes = [c for g in (groups or []) for c in data.SCRIPT_GROUPS[g]]
     allowed = D["langs"].loc[D["langs"]["iso_15924"].isin(codes), "language"].tolist()
     st.divider()
-    st.caption("Sources: FLORES+ devtest (CC BY-SA 4.0), tiktoken and Hugging Face tokenizers, "
-               "Anthropic and Google token-counting APIs, provider list prices.")
     st.caption(f"Data refreshed **{D['refreshed']}**")
 
 state = State(tokenizer=tokenizer, focus=focus, languages=allowed, d=D)
@@ -64,21 +62,28 @@ def _page(module, title, icon, path):
     return st.Page(run, title=title, icon=icon, url_path=path, default=(path == "overview"))
 
 
-nav = st.navigation({
-    "Same sentence, different bill": [
-        _page(overview, "Overview", ":material/grid_view:", "overview"),
-        _page(script, "Script or tokenizer?", ":material/translate:", "script"),
-        _page(shrinking, "Is it shrinking?", ":material/trending_down:", "shrinking"),
-        _page(costs, "Absorb, adjust or switch?", ":material/payments:", "costs"),
-    ],
-    "Dev only": [_page(styleguide, "Style guide", ":material/palette:", "styleguide")],
-}, position="sidebar")
+nav = st.navigation([
+    _page(overview, "Overview", ":material/grid_view:", "overview"),
+    _page(script, "Script or tokenizer?", ":material/translate:", "script"),
+    _page(shrinking, "Is it shrinking?", ":material/trending_down:", "shrinking"),
+    _page(costs, "Absorb, adjust or switch?", ":material/payments:", "costs"),
+], position="sidebar")
 
-# Header (every tab)
-st.markdown(f"<p class='dvn-q'><b>Question.</b> {data.QUESTION}<br><b>For.</b> {data.PERSONA}.</p>",
-            unsafe_allow_html=True)
-style.answer("<b>Answer: mostly the tokenizer.</b> The same text costs very different amounts on different "
-             "tokenizers. Newer tokenizers narrow the gap, but it has not closed.")
+
+def _study_block():
+    st.markdown(f"<p class='dvn-q'><b>Question.</b> {data.QUESTION}<br><b>For.</b> {data.PERSONA}.</p>",
+                unsafe_allow_html=True)
+    style.answer("<b>Answer: mostly the tokenizer.</b> The same text costs very different amounts on different "
+                 "tokenizers. Newer tokenizers narrow the gap, but it has not closed.")
+
+
+# Header: open with the app title on Overview, collapsed on the other tabs
+if nav.title == "Overview":
+    st.markdown("<div class='dvn-title'>Same sentence, different bill</div>", unsafe_allow_html=True)
+    _study_block()
+else:
+    with st.expander("The study question and answer", icon=":material/help:"):
+        _study_block()
 
 # Tab body
 nav.run()

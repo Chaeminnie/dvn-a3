@@ -180,6 +180,11 @@ p, li {{color: {TEXT};}}
 .dvn-brand {{font-size: 19px; font-weight: 800; color: {INK}; line-height: 1.25; letter-spacing: -0.02em; margin: 0 0 .2rem;}}
 .dvn-label {{font-size: 12px; font-weight: 600; color: {MUTED}; margin: .6rem 0 .2rem;}}
 
+/* app title: page header on Overview, sidebar header on every tab */
+.dvn-title {{font-size: 34px; font-weight: 800; color: {INK}; letter-spacing: -0.03em; line-height: 1.2; margin: 0 0 .8rem;}}
+[data-testid="stSidebarNav"]::before {{content: "Same sentence, different bill"; display: block; font-size: 19px;
+  font-weight: 800; color: {INK}; line-height: 1.25; letter-spacing: -0.02em; padding: 4px 10px 14px;}}
+
 /* header */
 .dvn-q {{font-size: 15px; color: {SUB}; line-height: 1.55; margin: 0 0 .7rem;}}
 .dvn-q b {{color: {INK};}}
