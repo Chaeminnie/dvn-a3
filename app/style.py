@@ -30,7 +30,7 @@ ACCENT_BG = "#e8f3ff"  # answer box
 ACCENT_INK = "#1b64da"
 
 # Tokenizer families
-FAMILY = {"gpt": "#3182f6", "gemma": "#ff6f0f", "qwen": "#1baf7a", "claude": "#eda100",
+FAMILY = {"gpt": "#3182f6", "gemma": "#ff6f0f", "qwen": "#5b2a86", "claude": "#0b6b3a",
           "llama": "#e87ba4", "mistral": "#008300", "gemini": "#6250d6"}
 # Heatmap steps, light to dark
 SEQ = ["#f4f8fe", "#dbeafe", "#b9d6fc", "#88b9f9", "#4f95f5", "#2570e0", "#174aa0"]

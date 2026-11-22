@@ -5,6 +5,7 @@ rewired to the shared sidebar state and the colours/theme in style.py.
 """
 import math
 
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -157,6 +158,14 @@ def render(state):
         style.chart_title("Is it the script?",
                           "Each dot is a language. Dots above the dashed line cost more than their script alone explains.")
         style.plotly_chart(_scatter(prem, tok_id, tok_name, focus, state.languages))
+
+    with st.expander("Values behind the dots", icon=":material/table:", expanded=True):
+        t = d.sort_values("premium_vs_en", ascending=False)
+        style.table(pd.DataFrame({
+            "Language": t["language"],
+            "Text size vs English (bytes)": t["byte_premium_vs_en"].map(style.fmt_x),
+            f"Tokens vs English on {tok_name}": t["premium_vs_en"].map(style.fmt_x),
+        }))
 
     style.how_to_read(
         "**Left:** each bar is one language's token cost against English on the selected tokenizer. "
