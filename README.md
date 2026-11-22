@@ -17,11 +17,24 @@ AI services charge per token. The same sentence needs a different number of toke
 
 They need to see where the unfairness is, how large it is in money terms, and whether a newer tokenizer would fix it.
 
+## The app
+
+Live app: https://dvn-a3-tokeniser.streamlit.app/
+
+| Tab | What it answers |
+|---|---|
+| Overview | The whole dataset at a glance: tokens needed per language compared with English, for every tokenizer |
+| Script or tokenizer? | Whether the gap follows the writing system or the tokenizer |
+| Is it shrinking? | How the gap changes from older to newer tokenizers in the same family |
+| Absorb, adjust or switch? | What the gap costs in money for a given user mix, and what a tiered price would change |
+
+The sidebar (tokenizer, focus language, script groups) is shared by all tabs. "Check a number" at the bottom recomputes a figure from the raw token counts.
+
 ## User stories
 
-1. **Cost vs English.** As a pricing lead, I want to see how many more tokens each language needs than English, for each tokenizer, so that I know where per-language cost differences come from.
-2. **My language mix.** As a monetisation manager, I want to enter my user language mix and a token quota, so that I can see how many requests and how much cost per user each language gets.
-3. **Is it shrinking?** As a budget owner, I want to see how the premium changes across tokenizers and generations (for example Gemma 2 to Gemma 3), so that I can decide whether to invest in a better tokenizer or wait.
+1. **Cost vs English.** As a pricing lead, I want to see how many more tokens each language needs than English, for each tokenizer, so that I know where per-language cost differences come from. (Tabs: Overview, Script or tokenizer?)
+2. **My language mix.** As a monetisation manager, I want to enter my user numbers, English-only share and a token quota, so that I can see what the language gap costs me and compare absorbing it, tiered pricing and switching tokenizer. (Tab: Absorb, adjust or switch?)
+3. **Is it shrinking?** As a budget owner, I want to see how the premium changes across tokenizers and generations (for example Gemma 2 to Gemma 3), so that I can decide whether to invest in a better tokenizer or wait. (Tab: Is it shrinking?)
 
 ## Data (v1)
 
@@ -82,8 +95,18 @@ Pipeline: `scripts/01_fetch_flores.py` to `02_count_tokens.py` to `03_aggregate.
 
 ## Team
 
-[TODO: names and roles]
+| Member | Part |
+|---|---|
+| Chaemin Jin | Data pipeline, app shell and navigation, style, final formatting, release |
+| Advait Jadhav | Overview tab, "Check a number" and limitations |
+| Chandan Thakur | Script or tokenizer? tab |
+| Saloni Ghosalkar | Is it shrinking? tab |
+| Amanda Kistilensa | Absorb, adjust or switch? tab |
+
+## AI use
+
+The AI provenance matrix and the Data and AI disclosure statement are in [`AI_PROVENANCE.md`](AI_PROVENANCE.md).
 
 ## Status
 
-Data v1 is complete. Next: charts, the interactive cost calculator, and the AI provenance matrix.
+Final version for submission. Assessed version: see the release tag `v1.0`.
