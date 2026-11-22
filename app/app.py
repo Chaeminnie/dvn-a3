@@ -93,7 +93,7 @@ with f1:
         verify.render(state)
 with f2:
     with st.expander("Limitations", icon=":material/info:"):
-        st.markdown("TODO (Advait): limitations list.")
+        verify.limitations()
 with f3:
     with st.expander("Data and AI disclosure", icon=":material/policy:"):
         st.markdown("TODO: link to the AI provenance matrix and the disclosure statement in the README.")
