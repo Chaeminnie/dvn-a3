@@ -13,7 +13,6 @@ One row per substantive AI use. Every member owns at least one row. "Verified" n
 | 5 | `app/sections/script.py` (Script or tokenizer? tab) | Chandan | Claude | Help build charts A and B (premium ranking, byte vs token scatter) and port them into the group app. | Plotly code for both charts, KPI cards, a values table and draft captions. | Recomputed Burmese on o200k from `token_counts_long.csv`: 17,081 / 5,323 = 3.2089, matching the 3.2× bar (averaging per-sentence ratios would give 3.2283). Checked layout at 1366x768. | Values matched. Cut wordy text and fixed overlapping scatter labels before merging. |
 | 6 | `app/sections/overview.py` (heatmap tab), `app/sections/verify.py` (Check a number box) | Advait | AI assistant | Help write the heatmap of tokens vs English for every language and tokenizer, and a box that recomputes a premium from the raw counts. | Plotly heatmap code with a log colour scale, KPI cards, and the verify box that sums `n_tokens` and compares the result with `token_premium.csv`. | Recomputed Burmese on GPT-2 from `token_counts_long.csv`: 91,589 / 5,360 = 17.0875, matching the 17.1× heatmap cell and `premium_vs_en`. The box shows an error if the two differ, so a wrong sum would have failed. | Values matched. Kept the log colour scale so 1.5× and 17× are both readable. |
 
-Add more rows if AI was used for other substantive work, such as the data pipeline, data dictionary, README or on-screen wording. Delete every TODO before submission.
 
 ## Data and AI Disclosure
 
