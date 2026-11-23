@@ -99,6 +99,12 @@ def _tier_chart(df: pd.DataFrame, bounds: tuple[float, float], focus: str) -> al
     chart = alt.layer(band, cuts, flat_rule, link, dots, tick, dot_txt, over_txt, flat_text)
     return chart.properties(height=24 * len(d) + 70, padding={"left": 16, "right": 16, "top": 8, "bottom": 8})
 
+# One stored value; slider and box are two views of it
+ENG_KEY = f"costs_share_{data.ENGLISH}"  
+
+def _sync_english(source_key: str) -> None:
+    """Copy the widget that was just changed into the stored English-only share."""
+    st.session_state[ENG_KEY] = st.session_state[source_key]
 
 # Language mix
 def _reset_mix(mix: dict) -> None:
@@ -142,9 +148,17 @@ def render(state):
         st.markdown("**Language mix**")
         m1, m2 = st.columns([1, 2], gap="large")
         with m1:
+            # Push the stored value into both widgets before they are drawn, so they always agree
+            # (including after "Reset to default mix").
+            ss["costs_eng_slider"] = ss[ENG_KEY]
+            ss["costs_eng_box"] = ss[ENG_KEY]
             st.slider("English-only share (% of users who only use English)", 0.0, 100.0, step=0.5, format="%.1f%%",
-                      key=f"costs_share_{data.ENGLISH}",
-                      help="Default value is 30%. The remainder is split across the other 14 languages using the weights on the right.")
+                      key="costs_eng_slider", on_change=_sync_english, args=("costs_eng_slider",),
+                      help="Default value is 30%. The remaining portion is split across the other 14 languages "
+                           "using the weights on the right.")
+            st.number_input("Or type a percentage (− and + step by 5%)", min_value=0.0, max_value=100.0, step=5.0,
+                            format="%.1f", key="costs_eng_box", on_change=_sync_english, args=("costs_eng_box",))
+            st.caption(f"The other languages share the remaining {100 - ss[ENG_KEY]:.1f}%.")
         with m2:
             with st.expander("Mix of the other languages (relative weights)", icon=":material/language:"):
                 st.caption("Only the proportions matter. They are scaled to fill what the English-only share leaves. "
